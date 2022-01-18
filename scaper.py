@@ -1,14 +1,24 @@
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
-#hotel_links =[]
+from sqlalchemy import create_engine
+import boto3
+import tempfile
+import os
+from tqdm import tqdm
+import urllib.request
+import uuid
+
 class ScrapUrl():
     
-    def __init__(self):
-        self.driver = webdriver.Chrome()
+    def __init__(self, chrome_options):
         
-    
+
+        self.driver = webdriver.Chrome(options=chrome_options)
+        
     def web_driver(self, URL: str)-> None:
         """get webdriver to pointing website
 
@@ -43,7 +53,7 @@ class ScrapUrl():
         Args:
             
             xpath (str): xpath of searchBar 
-            city (str): Name of city to search in search bar
+            city (str): city to search in search bar
         """
         time.sleep(3)
         serch_section = self.driver.find_element_by_xpath(xpath)
@@ -54,7 +64,7 @@ class ScrapUrl():
         serch_section.send_keys(Keys.RETURN)
 
     def hotel_tab(self, xpath_hotel_tab: str) -> None:
-        """travser to hotel tab
+        """click to hotel tab
 
         Args:
             xpath_hotel_tab (str): xpath of hotel tab
@@ -88,7 +98,80 @@ class ScrapUrl():
         
         return hotel_links
 
-  
+    def get_images(self, xpath_hotel: str)-> list:
+        """Get url of all hotel
+
+        Args:
+            
+            xpath_hotel (str): xpath of hotel '//a[@class = "review_count"]'
+            
+        """
+        time.sleep(3)
+        
+        image_links = []
+        hotel_links =[]
+        for i in range(1,6):
+            
+
+            # images  
+            div_img = self.driver.find_elements_by_xpath('//div[@class="prw_rup prw_common_responsive_image"]/div[1]/div')
+            #imgtags = self.driver.find_elements_by_xpath('//div[@class="inner"]')
+            print(len(div_img))
+            for j in range(len(div_img)):
+                imgpath = div_img[j].get_attribute("style")
+                image_links.append(imgpath[23:-3])
+                print(imgpath[23:-3])
+            
+
+
+            # next page button click
+            self.driver.find_element_by_link_text("Next").click()
+            
+            len(hotel_links) 
+            time.sleep(5)
+        #print(image_links)
+        return image_links
+
+    
+    def gen_uuid(self,links : list)-> list:
+        uuid_list = []
+        for i in range(len(links)):
+            uuid_list.append(uuid.uuid4().hex)
+    
+    def download_images(self,image_links:list, path='.') -> None:
+        '''
+        This method will download the images to the specified path
+        '''
+        
+        
+        if not os.path.exists(f'{path}/images'):
+            os.makedirs(f'{path}/images')
+        if image_links is None:
+            print('No images found, plase run get_images() first')
+            return None
+        
+        for i, scr in enumerate(tqdm(image_links)):
+            urllib.request.urlretrieve(scr, f'{path}/images/hotel_{i}.jpg')
+            
+            
+        #for i, scr in enumerate(tqdm(image_links)):
+        #'    urllib.request.urlretrieve(scr, f'{i}.jpg')
+        #for i in image_links:   
+        #    with open('{i}.jpg', 'wb') as file:
+        #      file.write(i.screenshot_as_png)
+    
+    
+    
+    def upload_image_aws(self, image_links : list):
+        # extracting images
+        s3_client = boto3.client('s3')
+        # Create a temporary directory, so you don't store images in your local machine
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for i, scr in enumerate(tqdm(image_links)):
+                urllib.request.urlretrieve(scr, f'{temp_dir}/{i}hotel.jpg')
+                s3_client.upload_file(f'{temp_dir}/{i}hotel.jpg', 'aicoredata', f'{i}hotel.jpg')
+                time.sleep(2)
+
 
     def get_hotel_data(self, hotellist : list)-> dict:
         """get hotel information, and ameneties
@@ -155,8 +238,7 @@ class ScrapUrl():
                 amenity = amenities[i].text
                 if amenity != '':
                     property_amenities.append(amenity)
-            hotel_info["amenities"].append(list(set(property_amenities)))
-            
+            hotel_info["amenities"].append(' ,'.join(map(str,list(set(property_amenities)))))
 
         
         return hotel_info
@@ -166,14 +248,41 @@ class ScrapUrl():
 
 
 
-def scrap():
-    obj = ScrapUrl()
+def main():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    obj = ScrapUrl(chrome_options)
+    time.sleep(3)
     obj.web_driver("https://www.tripadvisor.co.uk/")
+    time.sleep(3)
     obj.accept_cookies_button('//*[@id="onetrust-accept-btn-handler"]')
+    time.sleep(3)
     obj.search_city('London', '//*[@id="lithium-root"]/main/div[3]/div/div/div[2]/form/input[1]')
+    time.sleep(3)
     obj.hotel_tab('//*[@id="search-filters"]/ul/li[2]/a')
+    time.sleep(3)
     hotel_links = obj.get_urls_of_Hotel('//a[@class = "review_count"]')
+    time.sleep(3)
+    image_links = obj.get_images('//a[@class = "review_count"]')
+    time.sleep(3)
+    uuid_list = obj.gen_uuid(image_links)
+    time.sleep(3)
     hotel_data_dict =obj.get_hotel_data(hotel_links)
+    print(hotel_data_dict)
+    upload_aws_rds(hotel_data_dict)
+
+def upload_aws_rds(hotel_dict:dict):
+    df = pd.DataFrame.from_dict(hotel_dict)
+    DATABASE_TYPE = 'postgresql'
+    DBAPI = 'psycopg2'
+    ENDPOINT = 'tripadvisordb.cq2ysoq9uibp.eu-west-2.rds.amazonaws.com' # Change it for your AWS endpoint
+    USER = 'postgres'
+    PASSWORD = 'tripadvisor2805'
+    PORT = 5432
+    DATABASE = 'postgres'
+    engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
+    engine.connect()
+    df.to_sql('tripadvisor_dataset', engine, if_exists='replace')
     
 if __name__ == '__main__':
-    scrap()
+    main()
