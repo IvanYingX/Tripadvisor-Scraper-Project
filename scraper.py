@@ -17,7 +17,7 @@ import warnings
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
 
-class ScrapUrl():
+class ScrapTrip():
     
     def __init__(self, chrome_options):
         
@@ -144,7 +144,7 @@ class ScrapUrl():
     def gen_uuid(self,links : list)-> list:
         uuid_list = []
         for i in range(len(links)):
-            uuid_list.append(uuid.uuid4().hex)
+            uuid_list.append(uuid.uuid4().int)
         print("uuid gen done")
         return uuid_list
     
@@ -155,22 +155,36 @@ class ScrapUrl():
         s3_client = boto3.client('s3')
         id_image_dict = dict(zip(uid_list,image_links))
         #print(id_image_dict)
-        if not os.path.exists(f'{path}/images/{city}'):
-            os.makedirs(f'{path}/images/{city}')
-        if image_links is None:
-            print('No images found, plase run get_images() first')
-            return None
+        #if not os.path.exists(f'{path}/images/{city}'):
+        #    os.makedirs(f'{path}/images/{city}')
+        #if image_links is None:
+        #    print('No images found, plase run get_images() first')
+        #    return None
         
-        #for i, scr in enumerate(tqdm(image_links)):
+        #for i, scr in enumerdownlodedate(tqdm(image_links)):
         #    urllib.request.urlretrieve(scr, f'{path}/images/hotel_{i}.jpg')
 
-        for key, value in tqdm(id_image_dict.items()):
-            urllib.request.urlretrieve(value, f'{path}/images/{city}/{key}.jpg')
-            s3_client.upload_file(f'{path}/images/{city}/{key}.jpg', 'aicoredata', f'images/{city}/{key}.jpg')
-            time.sleep(2)
-        print("image downloded")
+        #for key, value in tqdm(id_image_dict.items()):
+        #    urllib.request.urlretrieve(value, f'{path}/images/{city}/{key}.jpg')
+            #s3_client.upload_file(f'{path}/images/{city}/{key}.jpg', 'aicoredata', f'images/{city}/{key}.jpg')
+            #time.sleep(2)
+        #print("image downloded")
+
+        #for key, value in tqdm(id_image_dict.items()):
+            #urllib.request.urlretrieve(value, f'{path}/images/{city}/{key}.jpg')
+        #    s3_client.upload_file(f'{path}/images/{city}/{key}.jpg', 'aicoredata', f'images/{city}/{key}.jpg')
+            #time.sleep(2)
+        #print("image uploaded")
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            for key, value in tqdm(id_image_dict.items()):
+                print(value)
+                urllib.request.urlretrieve(value, f'{temp_dir}/{key}.jpg')
+                s3_client.upload_file(f'{temp_dir}/{key}.jpg', 'aicoredata', f'images/{city}/{key}.jpg')
+                time.sleep(2)
     
-    '''
+
+    
     def upload_image_aws(self, image_links : list):
         # extracting images
         s3_client = boto3.client('s3')
@@ -180,7 +194,7 @@ class ScrapUrl():
                 urllib.request.urlretrieve(scr, f'{temp_dir}/{i}hotel.jpg')
                 s3_client.upload_file(f'{temp_dir}/{i}hotel.jpg', 'aicoredata', f'{i}hotel.jpg')
                 time.sleep(2)
-    '''
+    
 
     def get_hotel_data(self, uidlist:list, hotellist : list)-> dict:
         """get hotel information,UK220117-59732534 and ameneties
@@ -259,7 +273,7 @@ class ScrapUrl():
         return hotel_info
 
     def dict_json_s3(self,city:str, hotel_data_dict:dict):
-           
+            
         
         s3 = boto3.client('s3')
             
@@ -268,7 +282,7 @@ class ScrapUrl():
             json.dump(hotel_data_dict, outfile)
 
         with open(f'{city}.json', "rb") as f:
-            s3.upload_fileobj(f, "aicoredata", f'{city}.json')
+            s3.upload_fileobj(f, "aicoredata", f'jsonfile/{city}.json')
         print("json file added to s3")
 
 
@@ -280,7 +294,7 @@ def main():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('log-level=3')
-    obj = ScrapUrl(chrome_options)
+    obj = ScrapTrip(chrome_options)
     time.sleep(3)
     obj.web_driver("https://www.tripadvisor.co.uk/")
     time.sleep(3)
@@ -305,7 +319,7 @@ def main():
     obj.dict_json_s3(city,hotel_data_dict)
 
 
-    upload_aws_rds(hotel_data_dict)
+   # upload_aws_rds(hotel_data_dict)
 
 
 def upload_aws_rds(hotel_dict:dict):
