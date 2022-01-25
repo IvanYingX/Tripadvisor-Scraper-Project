@@ -9,7 +9,7 @@ setup(
     author='dhaval, luqman, aicore',
     license='MIT',
     packages=find_packages(),
-    install_requires=['selenium','sqlalchemy','tqdm','pandas','webdriver_manager','boto3',''],
+    
     install_requires=['selenium','sqlalchemy','tqdm','pandas','webdriver_manager','boto3','warnings','requests'],
 
 
