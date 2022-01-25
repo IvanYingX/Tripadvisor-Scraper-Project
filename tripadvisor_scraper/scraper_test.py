@@ -4,7 +4,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
-from scraper import ScrapTrip
+from .scraper import ScrapTrip
 
 class TestScraper(unittest.TestCase):
     def setUp(self) -> None:
