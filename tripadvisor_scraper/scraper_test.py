@@ -4,13 +4,13 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
 import time
 import pandas as pd
-from scaper import ScrapUrl
+from .scraper import ScrapTrip
 
-class TestScaper(unittest.TestCase):
+class TestScraper(unittest.TestCase):
     def setUp(self) -> None:
         chrome_options = Options()
         chrome_options.add_argument("--headless")
-        self.instance = ScrapUrl(chrome_options)
+        self.instance = ScrapTrip(chrome_options)
         self.instance.driver.get("https://www.tripadvisor.co.uk/")
         #return super().setUp()
 
@@ -37,5 +37,4 @@ class TestScaper(unittest.TestCase):
       self.instance.driver.close()
 
 
-if __name__ == '__main__':
-   unittest.main()
+unittest.main(argv=[''], verbosity=2, exit=False)

@@ -2,15 +2,15 @@ from setuptools import setup
 from setuptools import find_packages
 
 setup(
-    name='tripadvisor_scraper',
-    version='0.0.1',
+    name='Tripadvisor_Scraper_Project',
+    version='0.boto30.10',
     description='Mock package that scrap data of hotels from Tripadvisor',
-    author='dhaval_luqman_aicore',
+    #url='https://github.com/IvanYingX/Tripadvisor-Scraper-Project',
+    author='dhaval, luqman, aicore',
     license='MIT',
     packages=find_packages(),
-    install_requires=['selenium','sqlalchemy'],
-
-
+    install_requires=['selenium','sqlalchemy','tqdm','pandas','webdriver_manager','boto3',''],
+    install_requires=['selenium','sqlalchemy','tqdm','pandas','webdriver_manager','boto3','warnings','requests'],
 
 
 )
