@@ -2,6 +2,7 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
 import time
 import pandas as pd
 from sqlalchemy import create_engine
@@ -21,8 +22,8 @@ class ScrapTrip():
     
     def __init__(self, chrome_options):
         
-
-        self.driver = webdriver.Chrome(options=chrome_options)
+        s = Service(ChromeDriverManager().install())
+        self.driver = webdriver.Chrome(service=s,options=chrome_options)
         
     def web_driver(self, URL: str)-> None:
         """get webdriver to pointing website
@@ -184,8 +185,8 @@ class ScrapTrip():
         
         client = boto3.client(
         's3',
-        aws_access_key_id = 'AKIA6JD6B2QVWR6QGRN5',
-        aws_secret_access_key = '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',
+        aws_access_key_id = 'aws_access_key_id',
+        aws_secret_access_key = 'aws_secret_access_key',
         region_name = 'eu-west-2'
         )
         id_image_dict = dict(zip(uid_list,image_links))
@@ -220,11 +221,7 @@ class ScrapTrip():
         # extracting images
         s3_client = boto3.client('s3')
         client = boto3.client(
-        's3',
-        aws_access_key_id = 'AKIA6JD6B2QVWR6QGRN5',
-        aws_secret_access_key = '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',
-        region_name = 'eu-west-2'
-        )
+        
         # Create a temporary directory, so you don't store images in your local machine
         with tempfile.TemporaryDirectory() as temp_dir:
             for i, scr in enumerate(tqdm(image_links)):
@@ -337,9 +334,9 @@ class ScrapTrip():
         df = pd.DataFrame.from_dict(hotel_dict)
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
-        ENDPOINT = 'tripadvisordb.cq2ysoq9uibp.eu-west-2.rds.amazonaws.com' # Change it for your AWS endpoint
+        ENDPOINT = 'ENDPOINT' # Change it for your AWS endpoint
         USER = 'postgres'
-        PASSWORD = 'tripadvisor2805'
+        PASSWORD = 'PASSWORD'
         PORT = 5432
         DATABASE = 'postgres'
         engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")

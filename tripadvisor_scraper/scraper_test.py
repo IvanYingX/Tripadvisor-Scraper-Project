@@ -1,13 +1,16 @@
 import unittest
 from selenium import webdriver
+from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.chrome.service import Service
 import time
 import pandas as pd
 from .scraper import ScrapTrip
 
 class TestScraper(unittest.TestCase):
     def setUp(self) -> None:
+        s = Service(ChromeDriverManager.install())
         chrome_options = Options()
         chrome_options.add_argument("--headless")
         self.instance = ScrapTrip(chrome_options)

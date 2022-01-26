@@ -1,4 +1,4 @@
-from scraper import ScrapTrip
+from .scraper import ScrapTrip
 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager

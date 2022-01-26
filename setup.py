@@ -3,7 +3,7 @@ from setuptools import find_packages
 
 setup(
     name='Tripadvisor_Scraper_Project',
-    version='0.0.11',
+    version='0.0.14',
     description='Mock package that scrap data of hotels from Tripadvisor',
     #url='https://github.com/IvanYingX/Tripadvisor-Scraper-Project',
     author='dhaval, luqman, aicore',
