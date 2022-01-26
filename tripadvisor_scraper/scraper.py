@@ -2,7 +2,6 @@ from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.chrome.service import Service
 import time
 import pandas as pd
 from sqlalchemy import create_engine
@@ -22,8 +21,8 @@ class ScrapTrip():
     
     def __init__(self, chrome_options):
         
-        s = Service(ChromeDriverManager().install())
-        self.driver = webdriver.Chrome(service=s,options=chrome_options)
+
+        self.driver = webdriver.Chrome(options=chrome_options)
         
     def web_driver(self, URL: str)-> None:
         """get webdriver to pointing website
@@ -311,8 +310,8 @@ class ScrapTrip():
         s3 = boto3.client('s3')
         client = boto3.client(
         's3',
-        aws_access_key_id = 'AKIA6JD6B2QVWR6QGRN5',
-        aws_secret_access_key = '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',
+        aws_access_key_id = 'aws_access_key_id',
+        aws_secret_access_key = 'aws_secret_access_key',
         region_name = 'eu-west-2'
         )   
         # Serializing json  
@@ -334,9 +333,9 @@ class ScrapTrip():
         df = pd.DataFrame.from_dict(hotel_dict)
         DATABASE_TYPE = 'postgresql'
         DBAPI = 'psycopg2'
-        ENDPOINT = 'ENDPOINT' # Change it for your AWS endpoint
+        ENDPOINT = 'endpoint' # Change it for your AWS endpoint
         USER = 'postgres'
-        PASSWORD = 'PASSWORD'
+        PASSWORD = 'password'
         PORT = 5432
         DATABASE = 'postgres'
         engine = create_engine(f"{DATABASE_TYPE}+{DBAPI}://{USER}:{PASSWORD}@{ENDPOINT}:{PORT}/{DATABASE}")
