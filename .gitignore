@@ -127,5 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-upload_aws.ipynb
-delete.ipynb
+
+# ignore file
+#upload_aws.ipynb
+#delete.ipynb
+#prometheus.yml
+config.py
