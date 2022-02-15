@@ -187,7 +187,7 @@ class ScrapTrip():
         's3',
         aws_access_key_id = 'aws_access_key_id',
         aws_secret_access_key = 'aws_secret_access_key',
-        region_name = 'eu-west-2'
+        region_name = 'region_name'
         )
         id_image_dict = dict(zip(uid_list,image_links))
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -313,7 +313,7 @@ class ScrapTrip():
         's3',
         aws_access_key_id = 'aws_access_key_id',
         aws_secret_access_key = 'aws_secret_access_key',
-        region_name = 'eu-west-2'
+        region_name = 'region_name'
         )   
         # Serializing json  
         with open(f'{city}.json', "w") as outfile:
