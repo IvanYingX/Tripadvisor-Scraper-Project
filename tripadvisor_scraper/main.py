@@ -1,4 +1,8 @@
-from .scraper import ScrapTrip
+import sys
+sys.path.append(".")
+
+
+from scraper import ScrapTrip
 
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
@@ -10,7 +14,6 @@ from sqlalchemy import create_engine
 from tqdm import tqdm
 
 
-
 def main():
     city = input('Enter the name of the city from which you want to scrape hotel data from: ')
     page = int(input('Enter the number of the pages you want to scrap: '))
@@ -19,6 +22,18 @@ def main():
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     chrome_options.add_argument('log-level=3')
+    chrome_options.add_argument("--headless")
+    chrome_options.add_experimental_option("prefs", {"profile.managed_default_content_settings.images": 2}) 
+    chrome_options.add_argument("--no-sandbox") 
+    chrome_options.add_argument("--disable-setuid-sandbox")
+    chrome_options.add_argument("--remote-debugging-port=9222") # this
+    chrome_options.add_argument("--disable-dev-shm-using") 
+    chrome_options.add_argument("--disable-extensions") 
+    chrome_options.add_argument("--disable-gpu") 
+    #chrome_options.add_argument("start-maximized")
+    chrome_options.add_argument("--window-size=1920,1080")
+    chrome_options.add_argument("disable-infobars") 
+
     obj = ScrapTrip(chrome_options)
     time.sleep(3)
     obj.web_driver("https://www.tripadvisor.co.uk/")

@@ -1,3 +1,6 @@
+from email import parser
+from webbrowser import get
+from nbformat import read
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.options import Options
@@ -13,7 +16,7 @@ import urllib.request
 import uuid
 import json
 import warnings
-import config
+from configparser import ConfigParser
 
 
 warnings.filterwarnings("ignore", category=DeprecationWarning)
@@ -23,7 +26,8 @@ class ScrapTrip():
     def __init__(self, chrome_options):
         
 
-        self.driver = webdriver.Chrome(options=chrome_options)
+        #self.driver = webdriver.Chrome(options=chromeOptions)
+        self.driver = webdriver.Chrome(ChromeDriverManager().install(), options=chrome_options)
         
     def web_driver(self, URL: str)-> None:
         """get webdriver to pointing website
@@ -181,13 +185,15 @@ class ScrapTrip():
             uid_list (list): list of Unique ids
             path (str, optional): [description]. Defaults to '.'.
         """
+        parser = ConfigParser()
+        parser.read('config.ini')
 
         
         client = boto3.client(
         's3',
-        aws_access_key_id = 'aws_access_key_id',
-        aws_secret_access_key = 'aws_secret_access_key',
-        region_name = 'region_name'
+        aws_access_key_id = parser.get('keys', 'aws_access_key_id'),
+        aws_secret_access_key = parser.get('keys', 'aws_secret_access_key'),
+        region_name = parser.get('keys', 'region_name')
         )
         id_image_dict = dict(zip(uid_list,image_links))
         with tempfile.TemporaryDirectory() as temp_dir:
