@@ -133,4 +133,4 @@ dmypy.json
 #delete.ipynb
 #prometheus.yml
 config.py
-config.py
+config.ini
